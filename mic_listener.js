@@ -119,13 +119,12 @@ function getYouTubeVideo() {
 }
 
 function extractTimestamp(text) {
-  const minMatch = text.match(/(\\d+)\\s*minute/);
-  const secMatch = text.match(/(\\d+)\\s*second/);
+  const timeMatch = text.match(/(?:(\d+)\s*minutes?)?\s*(\d+)?\s*seconds?/);
+  if (!timeMatch) return null;
 
-  const minutes = minMatch ? parseInt(minMatch[1]) : 0;
-  const seconds = secMatch ? parseInt(secMatch[1]) : 0;
-
-  return (minutes * 60 + seconds) || null;
+  const minutes = parseInt(timeMatch[1]) || 0;
+  const seconds = parseInt(timeMatch[2]) || 0;
+  return minutes * 60 + seconds;
 }
 
 function formatTime(secs) {
