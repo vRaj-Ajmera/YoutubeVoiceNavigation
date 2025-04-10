@@ -18,31 +18,33 @@ if (!window.gvaRecognitionActive) {
   recognition.onresult = (event) => {
     const result = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
     console.log("Heard:", result);
-
     updateOverlay({ lastCommand: result });
 
     const video = document.querySelector('video');
     if (!video) return;
 
-    // Control activation
     if (result.includes("start borealis")) {
       isCommandActive = true;
       updateOverlay({ borealis: true });
+      updatePopupStatus("🎤 Borealis listening");
       return;
     }
 
     if (result.includes("stop borealis")) {
       isCommandActive = false;
       updateOverlay({ borealis: false });
+      updatePopupStatus("🛑 Borealis not listening");
       return;
     }
 
     if (!isCommandActive) return;
 
-    // Commands
     if (result.includes("stop listening")) {
       recognition.stop();
       window.gvaRecognitionActive = false;
+      clearInterval(loopInterval);
+      removeOverlay();
+      updatePopupStatus("🚫 Microphone off");
       return;
     }
 
@@ -57,8 +59,8 @@ if (!window.gvaRecognitionActive) {
     } else if (result.includes("seek")) {
       const time = extractTimestamp(result);
       if (time !== null) video.currentTime = time;
-    } else if (result.includes("playback")) {
-      const match = result.match(/playback (\\d+(\\.\\d+)?)x/);
+    } else if (result.includes("speed")) {
+      const match = result.match(/speed (\\d+(\\.\\d+)?)x/);
       if (match) {
         const rate = parseFloat(match[1]);
         video.playbackRate = Math.min(Math.max(rate, 0.1), 3.0);
@@ -86,18 +88,11 @@ if (!window.gvaRecognitionActive) {
     }
   };
 
-  recognition.onerror = (event) => {
-    console.error("Recognition error:", event.error);
-  };
-
-  recognition.onend = () => {
-    console.log("Recognition ended.");
-  };
-
+  recognition.onerror = (event) => console.error("Recognition error:", event.error);
+  recognition.onend = () => console.log("Recognition ended.");
   recognition.start();
 }
 
-// Helper: convert phrases to time in seconds
 function extractTimestamp(text) {
   const match = text.match(/(?:(\\d+)\\s*minutes?)?\\s*(\\d+)?\\s*seconds?/);
   if (!match) return null;
@@ -106,10 +101,14 @@ function extractTimestamp(text) {
   return min * 60 + sec;
 }
 
-// --- Overlay UI ---
+function formatTime(secs) {
+  const m = Math.floor(secs / 60);
+  const s = Math.floor(secs % 60).toString().padStart(2, '0');
+  return `${m}:${s}`;
+}
+
 function injectOverlay() {
   if (document.getElementById('gva-overlay')) return;
-
   const overlay = document.createElement('div');
   overlay.id = 'gva-overlay';
   overlay.style = `
@@ -123,7 +122,8 @@ function injectOverlay() {
     font-family: monospace;
     font-size: 14px;
     z-index: 99999;
-    pointer-events: none;
+    max-height: 140px;
+    overflow: hidden;
     white-space: pre-line;
   `;
   overlay.innerText = '🎸 Guitar Voice Assistant\nBorealis: active\nLoop: inactive\nLast: —';
@@ -135,17 +135,25 @@ function updateOverlay({ borealis, loop, lastCommand }) {
   if (!overlay) return;
 
   const prev = overlay.innerText.split('\\n');
-  let borealisLine = borealis !== undefined ? `Borealis: ${borealis ? 'active' : 'off'}` : prev[1];
-  let loopLine = loop
-    ? `Loop: ${formatTime(loop.start)} to ${formatTime(loop.end)}`
-    : loop === null ? 'Loop: inactive' : prev[2];
-  let lastLine = lastCommand ? `Last: ${lastCommand}` : prev[3];
+  const lines = [
+    '🎸 Guitar Voice Assistant',
+    borealis !== undefined ? `Borealis: ${borealis ? 'active' : 'off'}` : prev[1],
+    loop !== undefined
+      ? loop
+        ? `Loop: ${formatTime(loop.start)} to ${formatTime(loop.end)}`
+        : 'Loop: inactive'
+      : prev[2],
+    lastCommand ? `Last: ${lastCommand}` : prev[3]
+  ];
 
-  overlay.innerText = `${prev[0]}\n${borealisLine}\n${loopLine}\n${lastLine}`;
+  overlay.innerText = lines.slice(0, 7).join('\\n');
 }
 
-function formatTime(secs) {
-  const m = Math.floor(secs / 60);
-  const s = Math.floor(secs % 60).toString().padStart(2, '0');
-  return `${m}:${s}`;
+function removeOverlay() {
+  const overlay = document.getElementById('gva-overlay');
+  if (overlay) overlay.remove();
+}
+
+function updatePopupStatus(status) {
+  chrome.runtime.sendMessage({ status });
 }
