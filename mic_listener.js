@@ -5,6 +5,7 @@ if (!window.gvaRecognitionActive) {
   window.recognition = new webkitSpeechRecognition();
   const recognition = window.recognition;
 
+  let isMicOn = true;
   let isCommandActive = true;
   let loopStart = null;
   let loopEnd = null;
@@ -20,8 +21,8 @@ if (!window.gvaRecognitionActive) {
     console.log("Heard:", result);
     updateOverlay({ lastCommand: result });
 
-    const video = document.querySelector('video');
-    if (!video) return;
+    const video = document.querySelector('.html5-main-video');
+    if (!video || video.readyState < 1) return;
 
     if (result.includes("start borealis")) {
       isCommandActive = true;
@@ -40,6 +41,7 @@ if (!window.gvaRecognitionActive) {
     if (!isCommandActive) return;
 
     if (result.includes("stop listening")) {
+      isMicOn = false;
       recognition.stop();
       window.gvaRecognitionActive = false;
       clearInterval(loopInterval);
@@ -48,6 +50,7 @@ if (!window.gvaRecognitionActive) {
       return;
     }
 
+    // COMMANDS
     if (result.includes("pause") || result.includes("play")) {
       video.paused ? video.play() : video.pause();
     } else if (result.includes("back")) {
@@ -89,7 +92,22 @@ if (!window.gvaRecognitionActive) {
   };
 
   recognition.onerror = (event) => console.error("Recognition error:", event.error);
-  recognition.onend = () => console.log("Recognition ended.");
+
+  recognition.onend = () => {
+    console.log("Speech recognition ended");
+    if (isMicOn) {
+      console.log("Restarting recognition...");
+      recognition.start();
+      updatePopupStatus(
+        isCommandActive
+          ? "🎤 Listening & responding to commands (Borealis active)"
+          : "👂 Listening but not responding to commands (Borealis off)"
+      );
+    } else {
+      updatePopupStatus("🛑 Mic off");
+    }
+  };
+
   recognition.start();
 }
 
