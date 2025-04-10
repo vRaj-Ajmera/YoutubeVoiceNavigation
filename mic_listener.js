@@ -21,8 +21,8 @@ if (!window.gvaRecognitionActive) {
     console.log("Heard:", result);
     updateOverlay({ lastCommand: result });
 
-    const video = document.querySelector('.html5-main-video');
-    if (!video || video.readyState < 1) return;
+    const video = getYouTubeVideo();
+    if (!video) return;
 
     if (result.includes("start borealis")) {
       isCommandActive = true;
@@ -83,7 +83,8 @@ if (!window.gvaRecognitionActive) {
           loopEnd = end;
           clearInterval(loopInterval);
           loopInterval = setInterval(() => {
-            if (video.currentTime >= loopEnd) video.currentTime = loopStart;
+            const v = getYouTubeVideo();
+            if (v && v.currentTime >= loopEnd) v.currentTime = loopStart;
           }, 500);
           updateOverlay({ loop: { start, end } });
         }
@@ -111,12 +112,20 @@ if (!window.gvaRecognitionActive) {
   recognition.start();
 }
 
+function getYouTubeVideo() {
+  const video = document.querySelector('.html5-main-video');
+  if (!video || video.readyState < 1) return null;
+  return video;
+}
+
 function extractTimestamp(text) {
-  const match = text.match(/(?:(\\d+)\\s*minutes?)?\\s*(\\d+)?\\s*seconds?/);
-  if (!match) return null;
-  const min = parseInt(match[1]) || 0;
-  const sec = parseInt(match[2]) || 0;
-  return min * 60 + sec;
+  const minMatch = text.match(/(\\d+)\\s*minute/);
+  const secMatch = text.match(/(\\d+)\\s*second/);
+
+  const minutes = minMatch ? parseInt(minMatch[1]) : 0;
+  const seconds = secMatch ? parseInt(secMatch[1]) : 0;
+
+  return (minutes * 60 + seconds) || null;
 }
 
 function formatTime(secs) {
