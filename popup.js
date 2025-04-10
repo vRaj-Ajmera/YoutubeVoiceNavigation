@@ -8,7 +8,19 @@ document.getElementById("start").addEventListener("click", () => {
   });
   
   document.getElementById("stop").addEventListener("click", () => {
-    // Currently, mic auto-restarts in continuous mode; more logic would be needed to stop it.
-    alert("Stopping listening isn't implemented yet.");
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      chrome.scripting.executeScript({
+        target: { tabId: tabs[0].id },
+        func: () => {
+          if (window.recognition && window.gvaRecognitionActive) {
+            console.log("Voice recognition manually stopped.");
+            window.recognition.stop();
+            window.gvaRecognitionActive = false;
+          } else {
+            console.log("Voice recognition was not active.");
+          }
+        }
+      });
+    });
   });
   

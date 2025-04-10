@@ -4,7 +4,8 @@ console.log("Guitar Voice Assistant loaded.");
 if (!window.gvaRecognitionActive) {
   window.gvaRecognitionActive = true;
 
-  const recognition = new webkitSpeechRecognition(); // or SpeechRecognition
+  window.recognition = new webkitSpeechRecognition();
+  const recognition = window.recognition;  
   recognition.continuous = true;
   recognition.lang = 'en-US';
 
