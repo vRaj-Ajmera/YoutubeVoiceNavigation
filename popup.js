@@ -12,15 +12,43 @@ document.getElementById("stop").addEventListener("click", () => {
     chrome.scripting.executeScript({
       target: { tabId: tabs[0].id },
       func: () => {
-        if (window.recognition && window.gvaRecognitionActive) {
-          console.log("Voice recognition manually stopped.");
-          window.recognition.stop();
+        if (window.recognition) {
+          window.isMicOn = false;
           window.gvaRecognitionActive = false;
-        } else {
-          console.log("Voice recognition was not active.");
+          window.recognition.stop();
+          clearInterval(window.loopInterval || 0);
+          window.loopStart = null;
+          window.loopEnd = null;
+          const overlay = document.getElementById("gva-overlay");
+          if (overlay) overlay.remove();
+          chrome.runtime.sendMessage({ status: "Microphone off" });
         }
       }
     });
+  });
+});
+
+document.getElementById("reset").addEventListener("click", () => {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    chrome.scripting.executeScript({
+      target: { tabId: tabs[0].id },
+      func: () => {
+        const overlay = document.getElementById("gva-overlay");
+        if (overlay) {
+          overlay.style.top = "20px";
+          overlay.style.left = "20px";
+        }
+      }
+    });
+  });
+});
+
+document.getElementById("guideBtn").addEventListener("click", () => {
+  chrome.windows.create({
+    url: chrome.runtime.getURL("guide.html"),
+    type: "popup",
+    width: 400,
+    height: 480
   });
 });
 
