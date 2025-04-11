@@ -39,7 +39,7 @@ if (!window.gvaRecognitionActive) {
     if (result.includes("stop borealis")) {
       window.isCommandActive = false;
       window.lastResponse = "Borealis deactivated";
-      updatePopupStatus("🛑 Borealis not listening");
+      updatePopupStatus("👂 Borealis not listening");
       return updateOverlay();
     }
 
@@ -148,7 +148,7 @@ if (!window.gvaRecognitionActive) {
           : "👂 Listening but not responding to commands (Borealis off)"
       );
     } else {
-      updatePopupStatus("🛑 Mic off");
+      updatePopupStatus("🛑 Microphone off");
     }
   };
 

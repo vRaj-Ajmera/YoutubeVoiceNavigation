@@ -1,8 +1,16 @@
+const statusEl = document.getElementById("statusText");
+
+function setPopupStatus(text) {
+  if (statusEl) statusEl.textContent = text;
+}
+
 document.getElementById("start").addEventListener("click", () => {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     chrome.scripting.executeScript({
       target: { tabId: tabs[0].id },
       files: ["mic_listener.js"]
+    }, () => {
+      setPopupStatus("🎤 Borealis listening"); // Set status immediately on start
     });
   });
 });
@@ -21,7 +29,7 @@ document.getElementById("stop").addEventListener("click", () => {
           window.loopEnd = null;
           const overlay = document.getElementById("gva-overlay");
           if (overlay) overlay.remove();
-          chrome.runtime.sendMessage({ status: "Microphone off" });
+          chrome.runtime.sendMessage({ status: "🛑 Microphone off" });
         }
       }
     });
@@ -54,7 +62,32 @@ document.getElementById("guideBtn").addEventListener("click", () => {
 
 chrome.runtime.onMessage.addListener((request) => {
   if (request.status) {
-    const statusEl = document.getElementById("statusText");
-    if (statusEl) statusEl.textContent = request.status;
+    setPopupStatus(request.status);
   }
+});
+
+chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+  chrome.scripting.executeScript({
+    target: { tabId: tabs[0].id },
+    func: () => {
+      return {
+        isMicOn: window.isMicOn,
+        isCommandActive: window.isCommandActive
+      };
+    }
+  }, (results) => {
+    if (chrome.runtime.lastError || !results?.[0]?.result) {
+      setPopupStatus("⚠️ Unable to fetch status");
+      return;
+    }
+
+    const { isMicOn, isCommandActive } = results[0].result;
+    if (!isMicOn) {
+      setPopupStatus("🛑 Microphone off");
+    } else if (isCommandActive) {
+      setPopupStatus("🎤 Borealis listening");
+    } else {
+      setPopupStatus("👂 Borealis not listening");
+    }
+  });
 });
