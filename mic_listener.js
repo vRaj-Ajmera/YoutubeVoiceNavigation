@@ -1,4 +1,4 @@
-console.log("Guitar Voice Assistant loaded.");
+console.log("YouTube Voice Assistant loaded.");
 
 if (!window.gvaRecognitionActive) {
   window.gvaRecognitionActive = true;
@@ -79,8 +79,24 @@ if (!window.gvaRecognitionActive) {
       }
     } else if (result.includes("speed")) {
       const match = result.match(/speed (\d+(\.\d+)?)/);
+      const keywordMatch = result.match(/speed (normal|one|double|triple|half|quarter)/);
+      let rate = null;
+
       if (match) {
-        const rate = parseFloat(match[1]);
+        rate = parseFloat(match[1]);
+      } else if (keywordMatch) {
+        const keyword = keywordMatch[1];
+        rate = {
+          one: 1.0,
+          normal: 1.0,
+          double: 2.0,
+          triple: 3.0,
+          half: 0.5,
+          quarter: 0.25,
+        }[keyword];
+      }
+
+      if (rate) {
         video.playbackRate = Math.min(Math.max(rate, 0.1), 3.0);
         lastResponse = `Playback speed set to ${video.playbackRate.toFixed(2)}x`;
       } else {
@@ -92,14 +108,17 @@ if (!window.gvaRecognitionActive) {
       loopEnd = null;
       lastResponse = "Loop cleared";
     } else if (result.includes("loop")) {
-      const times = result.match(/loop (.+?) to (.+)/);
-      if (times) {
-        const start = extractTimestamp(times[1]);
-        const end = extractTimestamp(times[2]);
+      const fullMatch = result.match(/loop (.+?) to (.+)/);
+      const toOnlyMatch = result.match(/loop to (.+)/);
+    
+      if (fullMatch) {
+        const start = extractTimestamp(fullMatch[1]);
+        const end = extractTimestamp(fullMatch[2]);
         if (start !== null && end !== null && end > start) {
           loopStart = start;
           loopEnd = end;
           clearInterval(loopInterval);
+          video.currentTime = loopStart;
           loopInterval = setInterval(() => {
             const v = getYouTubeVideo();
             if (v && v.currentTime >= loopEnd) v.currentTime = loopStart;
@@ -108,11 +127,26 @@ if (!window.gvaRecognitionActive) {
         } else {
           lastResponse = "Invalid loop range";
         }
+      } else if (toOnlyMatch) {
+        const end = extractTimestamp(toOnlyMatch[1]);
+        const start = Math.floor(video.currentTime);
+        if (end !== null && end > start) {
+          loopStart = start;
+          loopEnd = end;
+          clearInterval(loopInterval);
+          loopInterval = setInterval(() => {
+            const v = getYouTubeVideo();
+            if (v && v.currentTime >= loopEnd) v.currentTime = loopStart;
+          }, 500);
+          lastResponse = `Looping from current time ${formatTime(start)} to ${formatTime(end)}`;
+        } else {
+          lastResponse = "Invalid loop range (loop to)";
+        }
+    
       } else {
         lastResponse = "Could not parse loop command";
       }
     }
-
     updateOverlay();
   };
 
@@ -147,7 +181,7 @@ if (!window.gvaRecognitionActive) {
         ? `${formatTime(loopStart)} to ${formatTime(loopEnd)}`
         : "inactive";
     overlay.innerText = [
-      "🎸 Guitar Voice Assistant",
+      "🎤 YouTube Voice Assistant",
       `Borealis: ${borealisStatus}`,
       `Microphone: ${micStatus}`,
       `Loop: ${loopStatus}`,
@@ -195,7 +229,7 @@ function injectOverlay() {
     font-family: monospace;
     font-size: 14px;
     z-index: 99999;
-    max-width: 300px;
+    max-width: 420px;
     cursor: move;
     user-select: none;
     white-space: pre-line;

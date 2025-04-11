@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
-    "name": "Guitar Voice Assistant",
+    "name": "YouTube Voice Assistant",
     "version": "1.0",
-    "description": "Control YouTube with your voice while practicing guitar.",
+    "description": "Control YouTube videos with your voice.",
     "permissions": ["scripting", "activeTab", "tabs", "microphone"],
     "host_permissions": ["*://www.youtube.com/*"],
     "action": {
