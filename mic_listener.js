@@ -10,35 +10,41 @@ if (!window.gvaRecognitionActive) {
   let loopStart = null;
   let loopEnd = null;
   let loopInterval = null;
+  let lastCommand = "—";
+  let lastResponse = "—";
 
   injectOverlay();
+  updateOverlay();
 
   recognition.continuous = true;
   recognition.lang = 'en-US';
 
   recognition.onresult = (event) => {
     const result = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
-    console.log("Heard:", result);
-    updateOverlay({ lastCommand: result });
+    lastCommand = result;
+    updateOverlay();
 
     const video = getYouTubeVideo();
-    if (!video) return;
+    if (!video) return (lastResponse = "Video not ready"), updateOverlay();
 
     if (result.includes("start borealis")) {
       isCommandActive = true;
-      updateOverlay({ borealis: true });
+      lastResponse = "Borealis activated";
       updatePopupStatus("🎤 Borealis listening");
-      return;
+      return updateOverlay();
     }
 
     if (result.includes("stop borealis")) {
       isCommandActive = false;
-      updateOverlay({ borealis: false });
+      lastResponse = "Borealis deactivated";
       updatePopupStatus("🛑 Borealis not listening");
-      return;
+      return updateOverlay();
     }
 
-    if (!isCommandActive) return;
+    if (!isCommandActive) {
+      lastResponse = "Command ignored (Borealis off)";
+      return updateOverlay();
+    }
 
     if (result.includes("stop listening")) {
       isMicOn = false;
@@ -53,26 +59,38 @@ if (!window.gvaRecognitionActive) {
     // COMMANDS
     if (result.includes("pause") || result.includes("play")) {
       video.paused ? video.play() : video.pause();
+      lastResponse = "Toggled play/pause";
     } else if (result.includes("back")) {
-      const secs = parseFloat(result.match(/back (\\d+(\\.\\d+)?)/)?.[1] || "2");
-      video.currentTime -= secs;
+      const time = extractTimestamp(result);
+      video.currentTime -= time ?? 2;
+      lastResponse = `Rewound ${time ?? 2} seconds`;
     } else if (result.includes("forward")) {
-      const secs = parseFloat(result.match(/forward (\\d+(\\.\\d+)?)/)?.[1] || "2");
-      video.currentTime += secs;
+      const time = extractTimestamp(result);
+      video.currentTime += time ?? 2;
+      lastResponse = `Skipped forward ${time ?? 2} seconds`;
     } else if (result.includes("seek")) {
       const time = extractTimestamp(result);
-      if (time !== null) video.currentTime = time;
+      if (time !== null) {
+        const jump = time - video.currentTime;
+        video.currentTime = time;
+        lastResponse = `Seeked ${jump > 0 ? "forward" : "backward"} ${Math.abs(jump).toFixed(1)}s to ${formatTime(time)}`;
+      } else {
+        lastResponse = "Could not parse seek target";
+      }
     } else if (result.includes("speed")) {
-      const match = result.match(/speed (\\d+(\\.\\d+)?)x/);
+      const match = result.match(/speed (\d+(\.\d+)?)/);
       if (match) {
         const rate = parseFloat(match[1]);
         video.playbackRate = Math.min(Math.max(rate, 0.1), 3.0);
+        lastResponse = `Playback speed set to ${video.playbackRate.toFixed(2)}x`;
+      } else {
+        lastResponse = "Could not parse speed";
       }
     } else if (result.includes("stop loop")) {
       clearInterval(loopInterval);
       loopStart = null;
       loopEnd = null;
-      updateOverlay({ loop: null });
+      lastResponse = "Loop cleared";
     } else if (result.includes("loop")) {
       const times = result.match(/loop (.+?) to (.+)/);
       if (times) {
@@ -86,16 +104,24 @@ if (!window.gvaRecognitionActive) {
             const v = getYouTubeVideo();
             if (v && v.currentTime >= loopEnd) v.currentTime = loopStart;
           }, 500);
-          updateOverlay({ loop: { start, end } });
+          lastResponse = `Looping ${formatTime(start)} to ${formatTime(end)}`;
+        } else {
+          lastResponse = "Invalid loop range";
         }
+      } else {
+        lastResponse = "Could not parse loop command";
       }
     }
+
+    updateOverlay();
   };
 
-  recognition.onerror = (event) => console.error("Recognition error:", event.error);
+  recognition.onerror = (event) => {
+    lastResponse = `Recognition error: ${event.error}`;
+    updateOverlay();
+  };
 
   recognition.onend = () => {
-    console.log("Speech recognition ended");
     if (isMicOn) {
       console.log("Restarting recognition...");
       recognition.start();
@@ -110,6 +136,25 @@ if (!window.gvaRecognitionActive) {
   };
 
   recognition.start();
+
+  function updateOverlay() {
+    const overlay = document.getElementById('gva-overlay');
+    if (!overlay) return;
+    const micStatus = isMicOn ? "on" : "off";
+    const borealisStatus = isCommandActive ? "active (listening and responding)" : 'inactive (say "Start Borealis")';
+    const loopStatus =
+      loopStart !== null && loopEnd !== null
+        ? `${formatTime(loopStart)} to ${formatTime(loopEnd)}`
+        : "inactive";
+    overlay.innerText = [
+      "🎸 Guitar Voice Assistant",
+      `Borealis: ${borealisStatus}`,
+      `Microphone: ${micStatus}`,
+      `Loop: ${loopStatus}`,
+      `Last: ${lastCommand}`,
+      `Response: ${lastResponse}`,
+    ].join("\n");
+  }
 }
 
 function getYouTubeVideo() {
@@ -119,12 +164,13 @@ function getYouTubeVideo() {
 }
 
 function extractTimestamp(text) {
-  const timeMatch = text.match(/(?:(\d+)\s*minutes?)?\s*(\d+)?\s*seconds?/);
-  if (!timeMatch) return null;
-
-  const minutes = parseInt(timeMatch[1]) || 0;
-  const seconds = parseInt(timeMatch[2]) || 0;
-  return minutes * 60 + seconds;
+  const fullMatch = text.match(/(\d+)\s*minutes?\s*(\d+)?\s*seconds?/);
+  const secOnlyMatch = text.match(/(\d+)\s*seconds?/);
+  const minOnlyMatch = text.match(/(\d+)\s*minutes?/);
+  if (fullMatch) return parseInt(fullMatch[1]) * 60 + parseInt(fullMatch[2] || 0);
+  if (minOnlyMatch) return parseInt(minOnlyMatch[1]) * 60;
+  if (secOnlyMatch) return parseInt(secOnlyMatch[1]);
+  return null;
 }
 
 function formatTime(secs) {
@@ -135,44 +181,52 @@ function formatTime(secs) {
 
 function injectOverlay() {
   if (document.getElementById('gva-overlay')) return;
+
   const overlay = document.createElement('div');
   overlay.id = 'gva-overlay';
   overlay.style = `
     position: fixed;
     top: 20px;
     left: 20px;
-    background: rgba(0,0,0,0.7);
+    background: rgba(0,0,0,0.8);
     color: #0f0;
-    padding: 10px 15px;
+    padding: 12px 18px;
     border-radius: 10px;
     font-family: monospace;
     font-size: 14px;
     z-index: 99999;
-    max-height: 140px;
-    overflow: hidden;
+    max-width: 300px;
+    cursor: move;
+    user-select: none;
     white-space: pre-line;
   `;
-  overlay.innerText = '🎸 Guitar Voice Assistant\nBorealis: active\nLoop: inactive\nLast: —';
   document.body.appendChild(overlay);
+
+  makeDraggable(overlay);
 }
 
-function updateOverlay({ borealis, loop, lastCommand }) {
-  const overlay = document.getElementById('gva-overlay');
-  if (!overlay) return;
+function makeDraggable(el) {
+  let isDragging = false;
+  let offsetX, offsetY;
 
-  const prev = overlay.innerText.split('\\n');
-  const lines = [
-    '🎸 Guitar Voice Assistant',
-    borealis !== undefined ? `Borealis: ${borealis ? 'active' : 'off'}` : prev[1],
-    loop !== undefined
-      ? loop
-        ? `Loop: ${formatTime(loop.start)} to ${formatTime(loop.end)}`
-        : 'Loop: inactive'
-      : prev[2],
-    lastCommand ? `Last: ${lastCommand}` : prev[3]
-  ];
+  el.addEventListener("mousedown", (e) => {
+    isDragging = true;
+    offsetX = e.clientX - el.getBoundingClientRect().left;
+    offsetY = e.clientY - el.getBoundingClientRect().top;
+    document.body.style.userSelect = "none";
+  });
 
-  overlay.innerText = lines.slice(0, 7).join('\\n');
+  document.addEventListener("mouseup", () => {
+    isDragging = false;
+    document.body.style.userSelect = "auto";
+  });
+
+  document.addEventListener("mousemove", (e) => {
+    if (isDragging) {
+      el.style.left = `${e.clientX - offsetX}px`;
+      el.style.top = `${e.clientY - offsetY}px`;
+    }
+  });
 }
 
 function removeOverlay() {
