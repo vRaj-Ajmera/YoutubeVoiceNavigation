@@ -1,24 +1,76 @@
-# Guitar Voice Assistant Extension
+# YouTube Voice Assistant Extension
 
-Control YouTube playback with your voice while practicing guitar 🎸
+Control YouTube playback using your voice — hands-free, keyboard-free, and frustration-free.
 
-### Features
-- Play, pause, rewind, fast forward
-- Control by voice using microphone
-- No keyboard or mouse needed
+## 🎤 About Borealis Mode
+**Borealis** is the command mode for this assistant:
+- When you click **Start Listening** in the extension popup, **Borealis is active by default**
+- You can say `stop borealis` to disable command recognition while keeping the mic on
+- Say `start borealis` again to resume command response
+- Say `stop listening` to turn off the microphone and close the overlay entirely
 
-### Commands Supported
-- "Pause"
-- "Play"
-- "Back 2 seconds"
-- "Forward 3.5 seconds"
-- "Slower"
-- "Faster"
+---
 
-### Installation in Edge
-1. Go to `edge://extensions/`
-2. Enable "Developer mode"
-3. Click "Load unpacked"
-4. Select this folder
+## 🎬 Playback Controls
 
-Enjoy hands-free practice!
+| Command | Action |
+|--------|--------|
+| `pause` / `play` | Toggle video playback |
+| `back 10 seconds` | Rewind by X seconds |
+| `forward 1 minute 30 seconds` | Fast forward (supports formats like `2 minutes and 10 seconds`, `one minute 45`) |
+| `seek 2 minutes 10 seconds` | Jump to a specific point in the video |
+
+---
+
+## ⏩ Playback Speed
+
+| Command | Result |
+|--------|--------|
+| `speed one` / `normal` | 1.0x playback |
+| `speed half` / `0.5` | 0.5x playback |
+| `speed double` / `2` | 2.0x playback |
+| `speed 1.25` | Precise control (supports decimals) |
+
+---
+
+## 🔁 Looping
+
+| Command | Action |
+|--------|--------|
+| `loop 2 minutes to 2 minutes 45 seconds` | Loop a fixed range |
+| `loop to 1 minute 10 seconds` | Loop from current position to target time |
+| `stop loop` | Cancel current loop |
+
+---
+
+## 🧠 Notes
+- You can speak numbers as words or digits:  
+  `one minute`, `2 minutes`, `30 seconds`, etc.
+- Commas and `and` are supported:  
+  `seek 2 minutes and 10 seconds`, `loop one minute, 30 seconds`
+- The overlay updates in real time and is draggable on the page
+- Use the popup to start/stop listening, reset the overlay, or view the usage guide
+
+---
+
+## 🧪 Installing on Microsoft Edge
+
+1. Visit `edge://extensions/`
+2. Enable **Developer mode** (top right)
+3. Click **"Load unpacked"**
+4. Select the folder where this extension lives
+
+Done! You're ready to use voice to control YouTube hands-free 🎧
+
+---
+
+## 💡 Tip
+Try saying:
+
+> “Loop one hour to one hour and two minutes”  
+> “Speed one point five”  
+> “Seek two minutes, 45 seconds”
+
+---
+
+Feel free to improve, fork, or contribute. Built for smooth YouTube practicing, watching, or transcribing.

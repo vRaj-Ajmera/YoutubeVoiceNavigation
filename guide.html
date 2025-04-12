@@ -2,35 +2,66 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Usage Guide</title>
+  <title>YouTube Voice Assistant – Usage Guide</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      padding: 15px;
+      padding: 16px;
       background: #f9f9f9;
+      line-height: 1.6;
     }
     h2 {
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
     ul {
       padding-left: 20px;
     }
+    li {
+      margin-bottom: 10px;
+    }
+    code {
+      background: #eee;
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
   </style>
 </head>
 <body>
-  <h2>Usage Guide</h2>
+  <h2>YouTube Voice Assistant – Usage Guide</h2>
+  <p><strong>Borealis</strong> is the command mode of the assistant. When you press <strong>Start Listening</strong> in the extension, Borealis is automatically <em>active</em>.</p>
+
   <ul>
-    <li><strong>start borealis</strong> — Enable voice command response</li>
-    <li><strong>stop borealis</strong> — Disable voice command response</li>
-    <li><strong>stop listening</strong> — Turn microphone off</li>
-    <li><strong>pause / play</strong> — Toggle video playback</li>
-    <li><strong>back X</strong> — Rewind by X seconds</li>
-    <li><strong>forward X</strong> — Skip ahead by X seconds</li>
-    <li><strong>seek X</strong> — Jump to time (e.g. 2 minutes 10 seconds)</li>
-    <li><strong>speed one / double / half</strong> — Change playback speed</li>
-    <li><strong>loop X to Y</strong> — Loop video from X to Y</li>
-    <li><strong>loop to X</strong> — Loop from current time to X</li>
-    <li><strong>stop loop</strong> — Cancel looping</li>
+    <li><code>start borealis</code> — Enables command mode (default when mic is turned on).</li>
+    <li><code>stop borealis</code> — Suspends command mode (mic stays on but no commands are processed).</li>
+    <li><code>stop listening</code> — Fully disables the microphone and closes the overlay. Use <strong>Start Listening</strong> to resume.</li>
+  </ul>
+
+  <h3>Playback Controls</h3>
+  <ul>
+    <li><code>pause</code> or <code>play</code> — Toggle video playback.</li>
+    <li><code>back 10 seconds</code> — Rewind the video by a number of seconds.</li>
+    <li><code>forward 1 minute 30 seconds</code> — Skip ahead. You can say times like <code>2 minutes and 10 seconds</code>, <code>1 minute, 45 seconds</code>, or even <code>one minute 30</code>.</li>
+    <li><code>seek 2 minutes 10 seconds</code> — Jump to a specific timestamp in the video.</li>
+  </ul>
+
+  <h3>Playback Speed</h3>
+  <ul>
+    <li><code>speed one</code>, <code>speed double</code>, <code>speed half</code> — Adjust playback rate (range: 0.1x – 3x).</li>
+    <li>You can also say: <code>speed 1.25</code>, <code>speed 0.5</code>, etc.</li>
+  </ul>
+
+  <h3>Looping</h3>
+  <ul>
+    <li><code>loop 2 minutes to 2 minutes 45 seconds</code> — Loop a defined range.</li>
+    <li><code>loop to 1 minute 10 seconds</code> — Loop from current time to a specific point.</li>
+    <li><code>stop loop</code> — Cancel any current loop.</li>
+  </ul>
+
+  <h3>Notes</h3>
+  <ul>
+    <li>Time phrases can include <code>and</code> or <code>commas</code> which appear as pauses in natural language, such as <code>1 minute and 30 seconds</code> or <code>2 minutes, 5 seconds</code>.</li>
+    <li>Voice commands are flexible and support both digits and number words (e.g. <code>one minute</code> = <code>1 minute</code>).</li>
+    <li>Use the extension popup to start/stop listening, reset overlay position, or view this guide again.</li>
   </ul>
 </body>
 </html>
