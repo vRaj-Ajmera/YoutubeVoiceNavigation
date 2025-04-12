@@ -5,6 +5,11 @@ if (!window.gvaRecognitionActive) {
   window.recognition = new webkitSpeechRecognition();
   const recognition = window.recognition;
 
+  // Detect if we are running in Chrome (excluding Edge) and adjust continuous mode
+  const userAgent = navigator.userAgent;
+  const isChromeBrowser = userAgent.indexOf("Chrome") > -1 && userAgent.indexOf("Edg") === -1;
+  recognition.continuous = isChromeBrowser ? false : true;
+
   window.isMicOn = true;
   window.isCommandActive = true;
   window.loopStart = null;
@@ -18,7 +23,6 @@ if (!window.gvaRecognitionActive) {
   injectOverlay();
   updateOverlay();
 
-  recognition.continuous = true;
   recognition.lang = 'en-US';
 
   recognition.onresult = async (event) => {
@@ -26,7 +30,7 @@ if (!window.gvaRecognitionActive) {
     window.lastCommand = result;
     updateOverlay();
 
-    const video = await getYouTubeVideo(); // <- now returns Promise
+    const video = await getYouTubeVideo(); // returns a Promise
     if (!video) {
       window.lastResponse = "🎞️ Video not ready";
       updateOverlay();
@@ -203,8 +207,8 @@ function normalizeSpokenNumbers(text) {
   };
 
   return text
-    .replace(/,/g, "")            // Remove commas
-    .replace(/\band\b/g, " ")     // Replace "and" with space
+    .replace(/,/g, "")
+    .replace(/\band\b/g, " ")
     .replace(/\b(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty)\b/gi,
       match => map[match.toLowerCase()] ?? match
     );
@@ -212,8 +216,6 @@ function normalizeSpokenNumbers(text) {
 
 function extractTimestamp(text) {
   text = normalizeSpokenNumbers(text);
-
-  // Remove "and" and commas for flexibility
   text = text.replace(/,/g, "").replace(/\band\b/g, " ");
 
   const fullHMS = text.match(/(\d+)\s*hours?\s*(\d+)?\s*minutes?\s*(\d+)?\s*seconds?/);
@@ -316,10 +318,9 @@ function updatePopupStatus(status) {
         typeof chrome.runtime.sendMessage === "function") {
       chrome.runtime.sendMessage({ status });
     } else {
-      console.log("[Popup Status]", status); // Fallback in YouTube context
+      console.log("[Popup Status]", status);
     }
   } catch (err) {
     console.log("[Popup Status Error]", err);
   }
 }
-
