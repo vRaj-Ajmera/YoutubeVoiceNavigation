@@ -21,13 +21,17 @@ if (!window.gvaRecognitionActive) {
   recognition.continuous = true;
   recognition.lang = 'en-US';
 
-  recognition.onresult = (event) => {
+  recognition.onresult = async (event) => {
     const result = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
     window.lastCommand = result;
     updateOverlay();
 
-    const video = getYouTubeVideo();
-    if (!video) return (window.lastResponse = "Video not ready"), updateOverlay();
+    const video = await getYouTubeVideo(); // <- now returns Promise
+    if (!video) {
+      window.lastResponse = "🎞️ Video not ready";
+      updateOverlay();
+      return;
+    }
 
     if (result.includes("start borealis")) {
       window.isCommandActive = true;
@@ -61,7 +65,6 @@ if (!window.gvaRecognitionActive) {
       return;
     }
 
-    // Commands
     if (result.includes("pause") || result.includes("play")) {
       video.paused ? video.play() : video.pause();
       window.lastResponse = "Toggled play/pause";
@@ -155,6 +158,20 @@ if (!window.gvaRecognitionActive) {
   recognition.start();
 }
 
+// Async retry logic for video readiness
+function getYouTubeVideo(retry = false) {
+  const video = document.querySelector('.html5-main-video');
+  if (video && video.readyState >= 1) return Promise.resolve(video);
+
+  if (!retry) {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(getYouTubeVideo(true)), 300);
+    });
+  }
+
+  return Promise.resolve(null);
+}
+
 // Helpers
 function updateOverlay() {
   const overlay = document.getElementById('gva-overlay');
@@ -174,11 +191,6 @@ function updateOverlay() {
     `Last: ${window.lastCommand}`,
     `Response: ${window.lastResponse}`,
   ].join("\n");
-}
-
-function getYouTubeVideo() {
-  const video = document.querySelector('.html5-main-video');
-  return video && video.readyState >= 1 ? video : null;
 }
 
 function extractTimestamp(text) {
