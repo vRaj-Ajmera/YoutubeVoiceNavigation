@@ -1,5 +1,3 @@
-console.log("YouTube Voice Assistant loaded.");
-
 if (!window.gvaRecognitionActive) {
   window.gvaRecognitionActive = true;
   window.recognition = new webkitSpeechRecognition();
