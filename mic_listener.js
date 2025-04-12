@@ -193,13 +193,59 @@ function updateOverlay() {
   ].join("\n");
 }
 
+function normalizeSpokenNumbers(text) {
+  const map = {
+    zero: "0", one: "1", two: "2", three: "3", four: "4", five: "5",
+    six: "6", seven: "7", eight: "8", nine: "9", ten: "10",
+    eleven: "11", twelve: "12", thirteen: "13", fourteen: "14", fifteen: "15",
+    sixteen: "16", seventeen: "17", eighteen: "18", nineteen: "19", twenty: "20",
+    thirty: "30", forty: "40", fifty: "50", sixty: "60"
+  };
+
+  return text
+    .replace(/,/g, "")            // Remove commas
+    .replace(/\band\b/g, " ")     // Replace "and" with space
+    .replace(/\b(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty)\b/gi,
+      match => map[match.toLowerCase()] ?? match
+    );
+}
+
 function extractTimestamp(text) {
-  const full = text.match(/(\d+)\s*minutes?\s*(\d+)?\s*seconds?/);
-  const sec = text.match(/(\d+)\s*seconds?/);
-  const min = text.match(/(\d+)\s*minutes?/);
-  if (full) return parseInt(full[1]) * 60 + parseInt(full[2] || 0);
-  if (min) return parseInt(min[1]) * 60;
-  if (sec) return parseInt(sec[1]);
+  text = normalizeSpokenNumbers(text);
+
+  // Remove "and" and commas for flexibility
+  text = text.replace(/,/g, "").replace(/\band\b/g, " ");
+
+  const fullHMS = text.match(/(\d+)\s*hours?\s*(\d+)?\s*minutes?\s*(\d+)?\s*seconds?/);
+  const fullHM = text.match(/(\d+)\s*hours?\s*(\d+)?\s*minutes?/);
+  const fullMS = text.match(/(\d+)\s*minutes?\s*(\d+)?\s*seconds?/);
+  const hOnly = text.match(/(\d+)\s*hours?/);
+  const mOnly = text.match(/(\d+)\s*minutes?/);
+  const sOnly = text.match(/(\d+)\s*seconds?/);
+
+  if (fullHMS) {
+    const h = parseInt(fullHMS[1]) || 0;
+    const m = parseInt(fullHMS[2]) || 0;
+    const s = parseInt(fullHMS[3]) || 0;
+    return h * 3600 + m * 60 + s;
+  }
+
+  if (fullHM) {
+    const h = parseInt(fullHM[1]) || 0;
+    const m = parseInt(fullHM[2]) || 0;
+    return h * 3600 + m * 60;
+  }
+
+  if (fullMS) {
+    const m = parseInt(fullMS[1]) || 0;
+    const s = parseInt(fullMS[2]) || 0;
+    return m * 60 + s;
+  }
+
+  if (hOnly) return parseInt(hOnly[1]) * 3600;
+  if (mOnly) return parseInt(mOnly[1]) * 60;
+  if (sOnly) return parseInt(sOnly[1]);
+
   return null;
 }
 

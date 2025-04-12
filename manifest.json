@@ -3,7 +3,7 @@
     "name": "YouTube Voice Assistant",
     "version": "1.0",
     "description": "Control YouTube videos with your voice.",
-    "permissions": ["scripting", "activeTab", "tabs", "microphone"],
+    "permissions": ["scripting", "tabs"],
     "host_permissions": ["*://www.youtube.com/*"],
     "action": {
       "default_popup": "popup.html",
