@@ -6,14 +6,22 @@ function setPopupStatus(text) {
 
 document.getElementById("start").addEventListener("click", () => {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    const tab = tabs[0];
+
+    if (!tab || !tab.url || !tab.url.includes("youtube.com/watch")) {
+      setPopupStatus("⚠️ Open a YouTube video to use Borealis");
+      return;
+    }
+
     chrome.scripting.executeScript({
-      target: { tabId: tabs[0].id },
+      target: { tabId: tab.id },
       files: ["mic_listener.js"]
     }, () => {
-      setPopupStatus("🎤 Borealis listening"); // Set status immediately on start
+      setPopupStatus("🎤 Borealis listening");
     });
   });
 });
+
 
 document.getElementById("stop").addEventListener("click", () => {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -67,8 +75,14 @@ chrome.runtime.onMessage.addListener((request) => {
 });
 
 chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+  const tab = tabs[0];
+  if (!tab || !tab.url || !tab.url.startsWith("http")) {
+    setPopupStatus("⚠️ Not a supported tab");
+    return;
+  }
+
   chrome.scripting.executeScript({
-    target: { tabId: tabs[0].id },
+    target: { tabId: tab.id },
     func: () => {
       return {
         isMicOn: window.isMicOn,
@@ -91,3 +105,4 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     }
   });
 });
+

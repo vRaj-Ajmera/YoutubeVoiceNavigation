@@ -310,5 +310,16 @@ function removeOverlay() {
 }
 
 function updatePopupStatus(status) {
-  chrome.runtime.sendMessage({ status });
+  try {
+    if (typeof chrome !== "undefined" &&
+        chrome.runtime &&
+        typeof chrome.runtime.sendMessage === "function") {
+      chrome.runtime.sendMessage({ status });
+    } else {
+      console.log("[Popup Status]", status); // Fallback in YouTube context
+    }
+  } catch (err) {
+    console.log("[Popup Status Error]", err);
+  }
 }
+
