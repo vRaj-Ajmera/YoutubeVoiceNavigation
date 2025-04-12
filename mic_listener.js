@@ -111,17 +111,17 @@ if (!window.gvaRecognitionActive) {
       } else {
         window.lastResponse = "Could not parse speed";
       }
-    } else if (result.includes("stop loop")) {
+    } else if (result.includes("stop loop") || result.includes("stop loup")) {
       clearInterval(window.loopInterval);
       window.loopStart = null;
       window.loopEnd = null;
       window.lastResponse = "Loop cleared";
-    } else if (result.includes("loop")) {
-      const fullMatch = result.match(/loop (.+?) to (.+)/);
-      const toOnlyMatch = result.match(/loop to (.+)/);
+    } else if (result.includes("loop") || result.includes("loup")) {
+      const fullMatch = result.match(/(?:loop|loup) (.+?) to (.+)/);
+      const toOnlyMatch = result.match(/(?:loop|loup) to (.+)/);
       const start = fullMatch ? extractTimestamp(fullMatch[1]) : Math.floor(video.currentTime);
       const end = fullMatch ? extractTimestamp(fullMatch[2]) : extractTimestamp(toOnlyMatch?.[1]);
-
+    
       if (start !== null && end !== null && end > start) {
         clearInterval(window.loopInterval);
         window.loopStart = start;
