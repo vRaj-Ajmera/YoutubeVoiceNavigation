@@ -61,14 +61,29 @@ Control YouTube playback using your voice — hands-free, keyboard-free, and fru
 
 ---
 
-## 🧪 Installing on Microsoft Edge
+## 💻 Installation Instructions
 
-1. Visit `edge://extensions/`
-2. Enable **Developer mode** (top right)
-3. Click **"Load unpacked"**
-4. Select the folder where this extension lives
+### ✅ Step 1: Download the Extension
 
-Done! You're ready to use voice to control YouTube hands-free 🎧
+1. Visit the GitHub repository page.
+2. Click the green **`Code`** button and choose **`Download ZIP`**.
+3. Once downloaded, **extract** the ZIP file to a folder on your computer  
+   (e.g., right-click → "Extract All..." or use your favorite archive tool).
+
+You now have the folder needed to load the extension into your browser.
+
+---
+
+### 🌐 Step 2: Load into Chrome or Edge
+
+1. Open your browser and go to the Extensions page:
+   - **Chrome** → `chrome://extensions/`  
+   - **Edge** → `edge://extensions/`
+2. Enable **Developer Mode** (top right corner).
+3. Click **“Load unpacked”**.
+4. Select the folder you extracted in Step 1.
+
+You're ready to use the YouTube Voice Assistant 🎤
 
 ---
 
