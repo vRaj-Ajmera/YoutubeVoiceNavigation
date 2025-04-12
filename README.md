@@ -1,5 +1,10 @@
 # YouTube Voice Assistant Extension
 
+![Manifest V3](https://img.shields.io/badge/Extension-Manifest%20V3-blue)
+![Made with JavaScript](https://img.shields.io/badge/Made%20with-JavaScript-yellow)
+![Mic Access](https://img.shields.io/badge/Requires-Microphone-red)
+![Browser](https://img.shields.io/badge/Browser-Edge%20%7C%20Chrome-green)
+
 Control YouTube playback using your voice — hands-free, keyboard-free, and frustration-free.
 
 ## 🎤 About Borealis Mode
@@ -24,12 +29,15 @@ Control YouTube playback using your voice — hands-free, keyboard-free, and fru
 
 ## ⏩ Playback Speed
 
-| Command | Result |
-|--------|--------|
-| `speed one` / `normal` | 1.0x playback |
-| `speed half` / `0.5` | 0.5x playback |
-| `speed double` / `2` | 2.0x playback |
-| `speed 1.25` | Precise control (supports decimals) |
+| Command                     | Result                      |
+|----------------------------|-----------------------------|
+| `speed one` / `normal`     | 1.0x playback               |
+| `speed half` / `0.5`       | 0.5x playback               |
+| `speed quarter` / `0.25`   | 0.25x playback (very slow)  |
+| `speed double` / `2`       | 2.0x playback               |
+| `speed triple` / `3`       | 3.0x playback (very fast)   |
+| `speed 1.25`               | Precise control (decimals)  |
+
 
 ---
 
