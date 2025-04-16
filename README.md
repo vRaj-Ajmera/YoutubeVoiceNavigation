@@ -1,5 +1,6 @@
 # YouTube Voice Assistant Extension
 
+![Version](https://img.shields.io/badge/Version-1.0-blueviolet)
 ![Manifest V3](https://img.shields.io/badge/Extension-Manifest%20V3-blue)
 ![Made with JavaScript](https://img.shields.io/badge/Made%20with-JavaScript-yellow)
 ![Mic Access](https://img.shields.io/badge/Requires-Microphone-red)
@@ -7,7 +8,22 @@
 
 Control YouTube playback using your voice — hands-free, keyboard-free, and frustration-free.
 
+---
+
+## 💻 Installation
+
+### 👉 Available on the Chrome and Edge Web Stores
+
+- **[Install on Chrome](https://chromewebstore.google.com/detail/youtube-voice-assistant/maachhgleoalfadpeejgppmbpefoniif)**
+- **[Install on Edge](https://microsoftedge.microsoft.com/addons/detail/youtube-voice-assistant/jdldieggbapabgbmofiahjchckdekpak)**
+
+Just click the appropriate link for your browser and hit **"Add to Chrome"/"Get"** to install instantly.  
+_Current version: **v1.0**_
+
+---
+
 ## 🎤 About Borealis Mode
+
 **Borealis** is the command mode for this assistant:
 - When you click **Start Listening** in the extension popup, **Borealis is active by default**
 - You can say `stop borealis` to disable command recognition while keeping the mic on
@@ -38,7 +54,6 @@ Control YouTube playback using your voice — hands-free, keyboard-free, and fru
 | `speed triple` / `3`       | 3.0x playback (very fast)   |
 | `speed 1.25`               | Precise control (decimals)  |
 
-
 ---
 
 ## 🔁 Looping
@@ -61,32 +76,6 @@ Control YouTube playback using your voice — hands-free, keyboard-free, and fru
 
 ---
 
-## 💻 Installation Instructions
-
-### ✅ Step 1: Download the Extension
-
-1. Visit the GitHub repository page.
-2. Click the green **`Code`** button and choose **`Download ZIP`**.
-3. Once downloaded, **extract** the ZIP file to a folder on your computer  
-   (e.g., right-click → "Extract All..." or use your favorite archive tool).
-
-You now have the folder needed to load the extension into your browser.
-
----
-
-### 🌐 Step 2: Load into Chrome or Edge
-
-1. Open your browser and go to the Extensions page:
-   - **Chrome** → `chrome://extensions/`  
-   - **Edge** → `edge://extensions/`
-2. Enable **Developer Mode** (top right corner).
-3. Click **“Load unpacked”**.
-4. Select the folder you extracted in Step 1.
-
-You're ready to use the YouTube Voice Assistant 🎤
-
----
-
 ## 💡 Tip
 Try saying:
 
@@ -97,3 +86,5 @@ Try saying:
 ---
 
 Feel free to improve, fork, or contribute. Built for smooth YouTube practicing, watching, or transcribing.
+
+---
